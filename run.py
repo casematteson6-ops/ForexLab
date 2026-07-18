@@ -1,7 +1,26 @@
-from engine.logger import get_logger
+from engine.csv_loader import CSVLoader
+from engine.validator import DataValidator
 
-logger = get_logger("ForexLab")
+loader = CSVLoader()
 
-logger.info("ForexLab has started successfully.")
-logger.warning("This is a warning message.")
-logger.error("This is an error message.")
+candles = loader.load(
+    "data/raw/eurchf_h1_MERGED_PARTIAL.csv",
+    "EURCHF"
+)
+
+validator = DataValidator()
+
+errors = validator.validate(candles)
+
+print("=" * 50)
+print(f"Candles Loaded : {len(candles)}")
+print(f"Validation Errors : {len(errors)}")
+
+if errors:
+    print("\nFirst Errors:")
+    for error in errors[:10]:
+        print(error)
+else:
+    print("\nDataset PASSED validation!")
+
+print("=" * 50)

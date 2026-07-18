@@ -1,3 +1,6 @@
 2026-07-07 21:51:53 | INFO     | ForexLab | ForexLab has started successfully.
 2026-07-07 21:51:53 | WARNING  | ForexLab | This is a warning message.
 2026-07-07 21:51:53 | ERROR    | ForexLab | This is an error message.
+2026-07-07 22:31:03 | INFO     | ForexLab | Starting Balance: 10000
+2026-07-07 22:31:03 | INFO     | ForexLab | Broker: IC Markets
+2026-07-07 22:31:03 | INFO     | ForexLab | Spread: 0.2 pips

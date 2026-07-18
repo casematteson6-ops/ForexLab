@@ -1,0 +1,19 @@
+account:
+  starting_balance: 10000
+  currency: USD
+
+broker:
+  name: IC Markets
+  leverage: 500
+
+execution:
+  spread: 0.2
+  commission: 3.5
+  slippage: realistic
+
+risk:
+  risk_percent: 1.0
+  max_open_trades: 5
+
+data:
+  timezone: UTC
