@@ -24,14 +24,18 @@ class SMACrossoverStrategy(Strategy):
         self.in_market = False
 
     def on_market(self, event):
+        """
+        Called whenever a new candle arrives.
+        """
 
-        # Store latest closing price
+        # Store the latest closing price
         self.prices.append(event.candle.close)
 
-        # Wait until enough candles exist
+        # Wait until we have enough candles
         if len(self.prices) < self.long_window:
             return
 
+        # Calculate moving averages
         short_ma = sum(
             self.prices[-self.short_window:]
         ) / self.short_window
@@ -40,7 +44,10 @@ class SMACrossoverStrategy(Strategy):
             self.prices[-self.long_window:]
         ) / self.long_window
 
+        # BUY signal
         if short_ma > long_ma and not self.in_market:
+
+            print("BUY SIGNAL")
 
             self.send_signal(
                 SignalEvent(
@@ -51,7 +58,10 @@ class SMACrossoverStrategy(Strategy):
 
             self.in_market = True
 
+        # SELL signal
         elif short_ma < long_ma and self.in_market:
+
+            print("SELL SIGNAL")
 
             self.send_signal(
                 SignalEvent(

@@ -33,6 +33,7 @@ class Portfolio:
         Convert a strategy signal into an order.
         """
 
+        # Enter a long position
         if signal.signal == SignalType.BUY:
 
             if self.position is None:
@@ -43,14 +44,18 @@ class Portfolio:
                     quantity=1.0,
                 )
 
+        # Exit the long position
         elif signal.signal == SignalType.SELL:
 
-            if self.position is None:
+            if (
+                self.position is not None
+                and self.position.direction == OrderDirection.BUY
+            ):
 
                 return OrderEvent(
                     symbol=signal.symbol,
                     direction=OrderDirection.SELL,
-                    quantity=1.0,
+                    quantity=self.position.quantity,
                 )
 
         return None
@@ -60,9 +65,15 @@ class Portfolio:
         Update the portfolio after an order has been filled.
         """
 
-        self.position = Position(
-            symbol=fill.symbol,
-            direction=fill.direction,
-            quantity=fill.quantity,
-            entry_price=fill.price,
-        )
+        if fill.direction == OrderDirection.BUY:
+
+            self.position = Position(
+                symbol=fill.symbol,
+                direction=fill.direction,
+                quantity=fill.quantity,
+                entry_price=fill.price,
+            )
+
+        elif fill.direction == OrderDirection.SELL:
+
+            self.position = None
