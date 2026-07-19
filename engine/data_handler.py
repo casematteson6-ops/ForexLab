@@ -21,12 +21,14 @@ class DataHandler:
 
     def stream_next(self):
         """Send the next MarketEvent into the queue."""
+
         if self.has_next():
             candle = self.candles[self.current_index]
 
             event = MarketEvent(
-                symbol=candle.symbol,
-                timestamp=candle.timestamp,
+                candle.symbol,
+                candle.timestamp,
+                candle,
             )
 
             self.event_queue.put(event)

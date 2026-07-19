@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from enum import Enum, auto
-from typing import Optional
+
+from models.candle import Candle
 
 
 class EventType(Enum):
@@ -19,11 +20,13 @@ class Event:
 class MarketEvent(Event):
     symbol: str
     timestamp: int
+    candle: Candle
 
-    def __init__(self, symbol: str, timestamp: int):
+    def __init__(self, symbol: str, timestamp, candle: Candle):
         self.event_type = EventType.MARKET
         self.symbol = symbol
         self.timestamp = timestamp
+        self.candle = candle
 
 
 class SignalType(Enum):
