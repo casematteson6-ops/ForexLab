@@ -6,6 +6,7 @@ from engine.events import (
     OrderEvent,
     OrderDirection,
     SignalType,
+    FillEvent,
 )
 
 
@@ -32,7 +33,6 @@ class Portfolio:
         Convert a strategy signal into an order.
         """
 
-        # Buy
         if signal.signal == SignalType.BUY:
 
             if self.position is None:
@@ -43,7 +43,6 @@ class Portfolio:
                     quantity=1.0,
                 )
 
-        # Sell
         elif signal.signal == SignalType.SELL:
 
             if self.position is None:
@@ -55,3 +54,15 @@ class Portfolio:
                 )
 
         return None
+
+    def process_fill(self, fill: FillEvent):
+        """
+        Update the portfolio after an order has been filled.
+        """
+
+        self.position = Position(
+            symbol=fill.symbol,
+            direction=fill.direction,
+            quantity=fill.quantity,
+            entry_price=fill.price,
+        )

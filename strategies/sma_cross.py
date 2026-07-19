@@ -3,6 +3,9 @@ from engine.events import SignalEvent, SignalType
 
 
 class SMACrossoverStrategy(Strategy):
+    """
+    Simple Moving Average crossover strategy.
+    """
 
     def __init__(
         self,
@@ -20,14 +23,41 @@ class SMACrossoverStrategy(Strategy):
         self.prices = []
         self.in_market = False
 
-   def on_market(self, event):
-    """
-    Receives each MarketEvent and stores the latest closing price.
-    """
+    def on_market(self, event):
 
-    # Store the newest closing price
-    self.prices.append(event.candle.close)
+        # Store latest closing price
+        self.prices.append(event.candle.close)
 
-    # Wait until we have enough candles
-    if len(self.prices) < self.long_window:
-        return
+        # Wait until enough candles exist
+        if len(self.prices) < self.long_window:
+            return
+
+        short_ma = sum(
+            self.prices[-self.short_window:]
+        ) / self.short_window
+
+        long_ma = sum(
+            self.prices[-self.long_window:]
+        ) / self.long_window
+
+        if short_ma > long_ma and not self.in_market:
+
+            self.send_signal(
+                SignalEvent(
+                    self.symbol,
+                    SignalType.BUY,
+                )
+            )
+
+            self.in_market = True
+
+        elif short_ma < long_ma and self.in_market:
+
+            self.send_signal(
+                SignalEvent(
+                    self.symbol,
+                    SignalType.SELL,
+                )
+            )
+
+            self.in_market = False

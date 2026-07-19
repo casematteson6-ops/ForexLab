@@ -2,40 +2,66 @@ from engine.csv_loader import CSVLoader
 from engine.validator import DataValidator
 from engine.event_queue import EventQueue
 from engine.data_handler import DataHandler
+from engine.portfolio import Portfolio
+from engine.execution import ExecutionHandler
+from engine.backtest import BacktestEngine
 
-loader = CSVLoader()
+from strategies.sma_cross import SMACrossoverStrategy
 
-candles = loader.load(
-    "data/raw/eurchf_h1_MERGED_PARTIAL.csv",
-    "EURCHF"
-)
 
-validator = DataValidator()
-errors = validator.validate(candles)
+def main():
 
-print("=" * 55)
-print(f"Candles Loaded : {len(candles)}")
-print(f"Validation Errors : {len(errors)}")
+    loader = CSVLoader()
 
-if len(errors) == 0:
-    print("\nDataset PASSED validation!")
-else:
-    print("\nDataset FAILED validation!")
-
-print("=" * 55)
-
-queue = EventQueue()
-
-handler = DataHandler(candles, queue)
-
-print("\nStreaming first five candles...\n")
-
-for _ in range(5):
-    handler.stream_next()
-
-    event = queue.get()
-
-    print(
-        handler.current_candle().timestamp,
-        event.event_type
+    candles = loader.load(
+        "data/raw/eurchf_h1_MERGED_PARTIAL.csv",
+        "EURCHF",
     )
+
+    validator = DataValidator()
+    errors = validator.validate(candles)
+
+    print("=" * 55)
+    print(f"Candles Loaded : {len(candles)}")
+    print(f"Validation Errors : {len(errors)}")
+
+    if errors:
+        print("\nDataset FAILED validation!")
+        return
+
+    print("\nDataset PASSED validation!")
+    print("=" * 55)
+
+    event_queue = EventQueue()
+
+    data_handler = DataHandler(
+        candles,
+        event_queue,
+    )
+
+    strategy = SMACrossoverStrategy(
+        symbol="EURCHF",
+        event_queue=event_queue,
+    )
+
+    portfolio = Portfolio()
+
+    execution = ExecutionHandler()
+
+    engine = BacktestEngine(
+        data_handler=data_handler,
+        event_queue=event_queue,
+        strategy=strategy,
+        portfolio=portfolio,
+        execution=execution,
+    )
+
+    print("\nRunning Backtest...\n")
+
+    engine.run()
+
+    print("\nBacktest Complete!")
+
+
+if __name__ == "__main__":
+    main()
