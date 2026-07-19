@@ -4,6 +4,7 @@ from engine.events import OrderEvent, FillEvent
 class ExecutionHandler:
     """
     Simulates a broker by converting orders into fills.
+    Future versions will support slippage, spread, and partial fills.
     """
 
     def __init__(self, commission: float = 0.0):
@@ -14,10 +15,12 @@ class ExecutionHandler:
         Execute an order at the supplied market price.
         """
 
-        return FillEvent(
+        fill = FillEvent(
             symbol=order.symbol,
             direction=order.direction,
             quantity=order.quantity,
             price=price,
             commission=self.commission,
         )
+
+        return fill

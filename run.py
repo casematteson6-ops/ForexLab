@@ -62,6 +62,31 @@ def main():
 
     print("\nBacktest Complete!")
 
+    print("\n" + "=" * 55)
+    print("FOREXLAB PERFORMANCE REPORT")
+    print("=" * 55)
+
+    print(f"Starting Balance : ${portfolio.initial_balance:,.2f}")
+    print(f"Ending Balance   : ${portfolio.cash:,.2f}")
+    print(f"Net Profit       : ${portfolio.total_profit():,.2f}")
+    print()
+
+    print(f"Trades           : {portfolio.total_trades()}")
+    print(f"Winning Trades   : {portfolio.winning_trades()}")
+    print(f"Losing Trades    : {portfolio.losing_trades()}")
+
+    if portfolio.total_trades() > 0:
+        win_rate = (
+            portfolio.winning_trades()
+            / portfolio.total_trades()
+        ) * 100
+
+        print(f"Win Rate         : {win_rate:.2f}%")
+    else:
+        print("Win Rate         : N/A")
+
+    print("=" * 55)
+
 
 if __name__ == "__main__":
     main()

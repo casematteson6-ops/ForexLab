@@ -18,22 +18,35 @@ class Position:
     entry_price: float = 0.0
 
 
+@dataclass
+class Trade:
+    symbol: str
+    entry_price: float
+    exit_price: float
+    quantity: float
+    profit: float
+
+
 class Portfolio:
     """
-    Tracks positions and converts trading signals into orders.
+    Tracks positions, completed trades, and account balance.
     """
 
     def __init__(self, initial_balance: float = 10000.0):
         self.initial_balance = initial_balance
         self.cash = initial_balance
+
         self.position: Optional[Position] = None
+
+        # Store every completed trade
+        self.trades = []
 
     def process_signal(self, signal: SignalEvent) -> Optional[OrderEvent]:
         """
-        Convert a strategy signal into an order.
+        Convert strategy signals into executable orders.
         """
 
-        # Enter a long position
+        # BUY
         if signal.signal == SignalType.BUY:
 
             if self.position is None:
@@ -44,7 +57,7 @@ class Portfolio:
                     quantity=1.0,
                 )
 
-        # Exit the long position
+        # SELL
         elif signal.signal == SignalType.SELL:
 
             if (
@@ -62,9 +75,10 @@ class Portfolio:
 
     def process_fill(self, fill: FillEvent):
         """
-        Update the portfolio after an order has been filled.
+        Update the portfolio after a fill.
         """
 
+        # Opening a position
         if fill.direction == OrderDirection.BUY:
 
             self.position = Position(
@@ -74,6 +88,37 @@ class Portfolio:
                 entry_price=fill.price,
             )
 
+        # Closing a position
         elif fill.direction == OrderDirection.SELL:
 
-            self.position = None
+            if self.position is not None:
+
+                profit = (
+                    fill.price - self.position.entry_price
+                ) * fill.quantity
+
+                self.cash += profit
+
+                self.trades.append(
+                    Trade(
+                        symbol=fill.symbol,
+                        entry_price=self.position.entry_price,
+                        exit_price=fill.price,
+                        quantity=fill.quantity,
+                        profit=profit,
+                    )
+                )
+
+                self.position = None
+
+    def total_profit(self):
+        return self.cash - self.initial_balance
+
+    def total_trades(self):
+        return len(self.trades)
+
+    def winning_trades(self):
+        return sum(1 for trade in self.trades if trade.profit > 0)
+
+    def losing_trades(self):
+        return sum(1 for trade in self.trades if trade.profit <= 0)

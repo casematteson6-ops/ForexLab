@@ -47,8 +47,6 @@ class SMACrossoverStrategy(Strategy):
         # BUY signal
         if short_ma > long_ma and not self.in_market:
 
-            print("BUY SIGNAL")
-
             self.send_signal(
                 SignalEvent(
                     self.symbol,
@@ -60,8 +58,6 @@ class SMACrossoverStrategy(Strategy):
 
         # SELL signal
         elif short_ma < long_ma and self.in_market:
-
-            print("SELL SIGNAL")
 
             self.send_signal(
                 SignalEvent(
